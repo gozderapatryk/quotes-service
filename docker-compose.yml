@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgresdb:
+    image: postgres:bullseye
+    container_name: postgresdb
+    restart: always
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB_NAME}
+      - POSTGRES_USER=${POSTGRES_DB_USER}
+      - POSTGRES_PASSWORD={POSTGRES_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - quotes-service-network
+      
+  quotes-service:
+    container_name: quotes-service
+    #image: quotes-service:1.0.1
+    restart: always
+    build:
+      context: ./quotes-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - quotes-service-network
+    env_file:
+      - .env
+
+volumes:
+  db-data: {}
+
+networks:
+  quotes-service-network:
+    driver: bridge
