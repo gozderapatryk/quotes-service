@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.gozderapatryk.quotesservice.dto.request.CreateAuthorRequestDto;
 import pl.gozderapatryk.quotesservice.dto.response.GetAuthorDto;
@@ -45,6 +46,7 @@ public class AuthorService {
                 .build();
     }
 
+    @Transactional
     public GetAuthorDto createAuthor(@NotNull @Valid CreateAuthorRequestDto createAuthorRequestDto) {
 
         if (authorRepository.existsByFirstNameAndLastName(createAuthorRequestDto.getFirstName(), createAuthorRequestDto.getLastName())) {
@@ -56,6 +58,7 @@ public class AuthorService {
         return ModelMapper.toGetAuthorDto(savedAuthor);
     }
 
+    @Transactional
     public void deleteQuotesByAuthorId(@NotNull @Positive Long id) {
         authorRepository.findById(id)
                 .ifPresentOrElse(author -> {

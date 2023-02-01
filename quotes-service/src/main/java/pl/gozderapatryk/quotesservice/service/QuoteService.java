@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.gozderapatryk.quotesservice.dto.request.CreateQuoteRequestDto;
 import pl.gozderapatryk.quotesservice.dto.response.GetQuoteDto;
@@ -24,7 +25,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,6 +50,7 @@ public class QuoteService {
                 .build();
     }
 
+    @Transactional
     public void addQuote(@NotNull @Valid CreateQuoteRequestDto createQuoteRequestDto) {
 
         if(quoteRepository.existsByQuote(createQuoteRequestDto.getQuote())) {
@@ -63,6 +64,7 @@ public class QuoteService {
         quoteRepository.save(quoteToSave);
     }
 
+    @Transactional
     public void deleteQuoteById(@NotNull @Positive Long id) {
         quoteRepository.findById(id)
                 .ifPresentOrElse(quoteRepository::delete, () -> {
@@ -76,6 +78,7 @@ public class QuoteService {
                 .orElseThrow(() -> new QuoteNotFoundException(id));
     }
 
+    @Transactional
     public void updateQuote(@NotNull @Positive Long id, @NotNull @Valid UpdateQuoteRequestDto updateQuoteRequestDto) {
         quoteRepository.findById(id)
                 .ifPresentOrElse(quote -> {
